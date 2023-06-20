@@ -1,0 +1,34 @@
+# Event - What starts this workflow?
+on:
+  workflow_dispatch:
+
+# Name of the workflow
+name: hello-r-world
+
+# Jobs - What the computer should do? 
+jobs:
+  write-message:
+    # Use ubuntu   
+    runs-on: ubuntu-latest 
+    steps:
+       # Install R
+      - uses: r-lib/actions/setup-r@v3    
+      - name: Install packages
+        run: |
+          sink("hello.txt")
+          print("hello world")
+          sink()
+        shell: Rscript {0} 
+      - name: Pushes test file
+        uses: dmnemec/copy_file_to_another_repo_action@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+          EMAIL: ${{ secrets.EMAIL }}
+          REPO: ${{ secrets.REPO }}
+          USERNAME: ${{ secrets.USERNAME }}
+        with:
+          source_file: 'hello.txt'
+          destination_repo: 'REPO'
+          user_email: 'EMAIL'
+          user_name: 'USERNAME'
+          commit_message: 'A custom message for the commit'
