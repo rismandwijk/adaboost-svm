@@ -4,6 +4,7 @@ library(caret)
 library(tidyverse)
 message("Data")
 data_churn<-read.csv("https://raw.githubusercontent.com/rismandwij/Data/main/IT_customer_churn.csv")
+data_churn <- data_churn %>% drop_na()
 message("Preprocessing")
 data_churn1<-data_churn
 data_churn1$gender<-as.factor(ifelse(data_churn1$gender=="Male",1,0))
@@ -39,6 +40,7 @@ rownames(partisi_data)<-NULL
 colnames(partisi_data)<-c("Data","Kelas_0","Kelas_1")
 
 message("Adaboost SVM Linear")
+print("Adaboost SVM Linear")
 stratified.cv=function(data,nfolds){
   folds <- createFolds(factor(data[,ncol(data)]), k = nfolds, list = FALSE)
   data.train=vector("list",nfolds)
