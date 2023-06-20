@@ -1,34 +1,43 @@
-# Event - What starts this workflow?
+name: Update index.html
 on:
   workflow_dispatch:
 
-# Name of the workflow
-name: hello-r-world
-
-# Jobs - What the computer should do? 
 jobs:
-  write-message:
-    # Use ubuntu   
-    runs-on: ubuntu-latest 
+  coba:
+    runs-on: macOS-latest
     steps:
-       # Install R
-      - uses: r-lib/actions/setup-r@v2    
-      - name: Install packages
-        run: |
-          sink("hello.txt")
-          print("hello world")
-          sink()
-        shell: Rscript {0} 
-      - name: Pushes test file
-        uses: dmnemec/copy_file_to_another_repo_action@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-          EMAIL: ${{ secrets.EMAIL }}
-          REPO: ${{ secrets.REPO }}
-          USERNAME: ${{ secrets.USERNAME }}
-        with:
-          source_file: 'hello.txt'
-          destination_repo: REPO
-          user_email: EMAIL
-          user_name: USERNAME
-          commit_message: 'A custom message for the commit'
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        dir
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        python update.py
+        dir
+    - name: Commit files
+      id: commit
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        EMAIL: ${{ secrets.EMAIL }}
+        REPO: ${{ secrets.REPO }}
+        USERNAME: ${{ secrets.USERNAME }}
+      run: |
+        git config --local user.email "EMAIL"
+        git config --local user.name "USERNAME"
+        git add --all
+        if [-z "$(git status --porcelain)"]; then
+          echo "::set-output name=push::false"
+        else
+          git commit -m "Add changes" -a
+          echo "::set-output name=push::true"
+        fi
+      shell: bash
+    - name: Push changes
+      if: steps.commit.outputs.push == 'true'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: 'API_TOKEN_GITHUB'
