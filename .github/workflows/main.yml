@@ -28,7 +28,7 @@ jobs:
           USERNAME: ${{ secrets.USERNAME }}
         with:
           source_file: 'hello.txt'
-          destination_repo: 'REPO'
-          user_email: 'EMAIL'
-          user_name: 'USERNAME'
+          destination_repo: REPO
+          user_email: EMAIL
+          user_name: USERNAME
           commit_message: 'A custom message for the commit'
